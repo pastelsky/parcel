@@ -21,27 +21,34 @@ const TYPE_TO_RESOURCE_PRIORITY = {
   js: 'script',
 };
 
-const BROWSER_PRELOAD_LOADER = './helpers/browser/preload-loader';
-const BROWSER_PREFETCH_LOADER = './helpers/browser/prefetch-loader';
+// $FlowFixMe
+const DIRNAME = process.browser ? '/VIRTUAL/@parcel/runtime-js/src' : __dirname;
+// $FlowFixMe
+const FILENAME = path.join(DIRNAME, 'JSRuntime.js');
+
+const BROWSER_PRELOAD_LOADER =
+  '@parcel/runtime-js/src/helpers/browser/preload-loader';
+const BROWSER_PREFETCH_LOADER =
+  '@parcel/runtime-js/src/helpers/browser/prefetch-loader';
 
 const LOADERS = {
   browser: {
-    css: './helpers/browser/css-loader',
-    html: './helpers/browser/html-loader',
-    js: './helpers/browser/js-loader',
-    wasm: './helpers/browser/wasm-loader',
-    IMPORT_POLYFILL: './helpers/browser/import-polyfill',
+    css: '@parcel/runtime-js/src/helpers/browser/css-loader',
+    html: '@parcel/runtime-js/src/helpers/browser/html-loader',
+    js: '@parcel/runtime-js/src/helpers/browser/js-loader',
+    wasm: '@parcel/runtime-js/src/helpers/browser/wasm-loader',
+    IMPORT_POLYFILL: '@parcel/runtime-js/src/helpers/browser/import-polyfill',
   },
   worker: {
-    js: './helpers/worker/js-loader',
-    wasm: './helpers/worker/wasm-loader',
+    js: '@parcel/runtime-js/src/helpers/worker/js-loader',
+    wasm: '@parcel/runtime-js/src/helpers/worker/wasm-loader',
     IMPORT_POLYFILL: false,
   },
   node: {
-    css: './helpers/node/css-loader',
-    html: './helpers/node/html-loader',
-    js: './helpers/node/js-loader',
-    wasm: './helpers/node/wasm-loader',
+    css: '@parcel/runtime-js/src/helpers/node/css-loader',
+    html: '@parcel/runtime-js/src/helpers/node/html-loader',
+    js: '@parcel/runtime-js/src/helpers/node/js-loader',
+    wasm: '@parcel/runtime-js/src/helpers/node/wasm-loader',
     IMPORT_POLYFILL: null,
   },
 };
@@ -93,7 +100,7 @@ export default (new Runtime({
           // return a simple runtime of `Promise.resolve(internalRequire(assetId))`.
           // The linker handles this for scope-hoisting.
           assets.push({
-            filePath: __filename,
+            filePath: FILENAME,
             code: `module.exports = Promise.resolve(module.bundle.root(${JSON.stringify(
               bundleGraph.getAssetPublicId(resolved.value),
             )}))`,
@@ -146,7 +153,7 @@ export default (new Runtime({
       );
       if (referencedBundle?.bundleBehavior === 'inline') {
         assets.push({
-          filePath: path.join(__dirname, `/bundles/${referencedBundle.id}.js`),
+          filePath: path.join(DIRNAME, `/bundles/${referencedBundle.id}.js`),
           code: `module.exports = ${JSON.stringify(dependency.id)};`,
           dependency,
           env: {sourceType: 'module'},
@@ -161,7 +168,7 @@ export default (new Runtime({
         // If a URL dependency was not able to be resolved, add a runtime that
         // exports the original specifier.
         assets.push({
-          filePath: __filename,
+          filePath: FILENAME,
           code: `module.exports = ${JSON.stringify(dependency.specifier)}`,
           dependency,
           env: {sourceType: 'module'},
@@ -216,7 +223,7 @@ export default (new Runtime({
           loader,
         )})( ${getAbsoluteUrlExpr(relativePathExpr, bundle)})`;
         assets.push({
-          filePath: __filename,
+          filePath: FILENAME,
           code: loaderCode,
           isEntry: true,
           env: {sourceType: 'module'},
@@ -232,7 +239,7 @@ export default (new Runtime({
       isNewContext(bundle, bundleGraph)
     ) {
       assets.push({
-        filePath: __filename,
+        filePath: FILENAME,
         code: getRegisterCode(bundle, bundleGraph),
         isEntry: true,
         env: {sourceType: 'module'},
@@ -412,7 +419,7 @@ function getLoaderRuntime({
   }
 
   return {
-    filePath: __filename,
+    filePath: FILENAME,
     code: `module.exports = ${loaderCode};`,
     dependency,
     env: {sourceType: 'module'},
@@ -511,7 +518,7 @@ function getURLRuntime(
   let code;
 
   if (dependency.meta.webworker === true && !from.env.isLibrary) {
-    code = `let workerURL = require('./helpers/get-worker-url');\n`;
+    code = `let workerURL = require('@parcel/runtime-js/src/helpers/get-worker-url.js');\n`;
     if (
       from.env.outputFormat === 'esmodule' &&
       from.env.supports('import-meta-url')
@@ -521,7 +528,7 @@ function getURLRuntime(
         from.env.outputFormat === 'esmodule',
       )});`;
     } else {
-      code += `let bundleURL = require('./helpers/bundle-url');\n`;
+      code += `let bundleURL = require('@parcel/runtime-js/src/helpers/bundle-url');\n`;
       code += `let url = bundleURL.getBundleURL('${from.publicId}') + ${relativePathExpr};`;
       code += `module.exports = workerURL(url, bundleURL.getOrigin(url), ${String(
         from.env.outputFormat === 'esmodule',
@@ -532,7 +539,7 @@ function getURLRuntime(
   }
 
   return {
-    filePath: __filename,
+    filePath: FILENAME,
     code,
     dependency,
     env: {sourceType: 'module'},
@@ -563,7 +570,7 @@ function getRegisterCode(
   }, entryBundle);
 
   return (
-    "require('./helpers/bundle-manifest').register(JSON.parse(" +
+    "require('@parcel/runtime-js/src/helpers/bundle-manifest.js').register(JSON.parse(" +
     JSON.stringify(JSON.stringify(idToName)) +
     '));'
   );
@@ -585,7 +592,7 @@ function getRelativePathExpr(
     }
     return (
       relativeBase +
-      `require('./helpers/bundle-manifest').resolve(${JSON.stringify(
+      `require('@parcel/runtime-js/src/helpers/bundle-manifest').resolve(${JSON.stringify(
         to.publicId,
       )})`
     );
@@ -608,7 +615,7 @@ function getAbsoluteUrlExpr(relativePathExpr: string, bundle: NamedBundle) {
     // This will be compiled to new URL(url, import.meta.url) or new URL(url, 'file:' + __filename).
     return `new __parcel__URL__(${relativePathExpr}).toString()`;
   } else {
-    return `require('./helpers/bundle-url').getBundleURL('${bundle.publicId}') + ${relativePathExpr}`;
+    return `require('@parcel/runtime-js/src/helpers/bundle-url').getBundleURL('${bundle.publicId}') + ${relativePathExpr}`;
   }
 }
 

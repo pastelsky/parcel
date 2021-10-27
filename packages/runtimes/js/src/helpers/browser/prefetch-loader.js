@@ -1,4 +1,4 @@
-const cacheLoader = require('../cacheLoader');
+const cacheLoader = require('@parcel/runtime-js/src/helpers/cacheLoader');
 
 module.exports = cacheLoader(function prefetchJSBundle(bundle, priority) {
   var link = document.createElement('link');
