@@ -1,4 +1,5 @@
 // @flow
+/* global globalThis:readonly */
 
 import type {Asset, BundleBehavior} from '@parcel/types';
 import type {Graph} from '@parcel/graph';
@@ -10,6 +11,7 @@ import path from 'path';
 import {fromNodeId} from '@parcel/graph';
 import {fromProjectPathRelative} from './projectPath';
 import {SpecifierType, Priority} from './types';
+import {Graph as GraphVizGraph} from 'graphviz/lib/deps/graph';
 
 const COLORS = {
   root: 'gray',
@@ -35,7 +37,8 @@ const TYPE_COLORS = {
   invalidated_by_delete: 'red',
 };
 
-export default async function dumpGraphToGraphViz(
+export default function dumpGraphToGraphViz(
+  // $FlowFixMe
   graph:
     | Graph<AssetGraphNode>
     | Graph<{|
@@ -46,20 +49,28 @@ export default async function dumpGraphToGraphViz(
     | Graph<BundleGraphNode>,
   name: string,
   edgeTypes?: typeof bundleGraphEdgeTypes | typeof requestGraphEdgeTypes,
-): Promise<void> {
+): void {
   if (
-    process.env.PARCEL_BUILD_ENV === 'production' ||
-    process.env.PARCEL_DUMP_GRAPHVIZ == null ||
-    // $FlowFixMe
-    process.env.PARCEL_DUMP_GRAPHVIZ == false
+    !(
+      /* $FlowFixMe*/ (
+        (process.browser && globalThis.PARCEL_DUMP_GRAPHVIZ?.mode != null) ||
+        (process.env.PARCEL_BUILD_ENV !== 'production' &&
+          process.env.PARCEL_DUMP_GRAPHVIZ != null &&
+          // $FlowFixMe
+          process.env.PARCEL_DUMP_GRAPHVIZ != false)
+      )
+    )
   ) {
     return;
   }
-  let detailedSymbols = process.env.PARCEL_DUMP_GRAPHVIZ === 'symbols';
+  // $FlowFixMe
+  let detailedSymbols = globalThis.PARCEL_DUMP_GRAPHVIZ?.mode === 'symbols';
 
-  const graphviz = require('graphviz');
-  const tempy = require('tempy');
-  let g = graphviz.digraph('G');
+  // const graphviz = require('graphviz');
+  // const tempy = require('tempy');
+  // let g = graphviz.digraph('G');
+  let g = new GraphVizGraph(null, 'G');
+  g.type = 'digraph';
   for (let [id, node] of graph.nodes) {
     let n = g.addNode(nodeId(id));
     // $FlowFixMe default is fine. Not every type needs to be in the map.
@@ -191,10 +202,17 @@ export default async function dumpGraphToGraphViz(
       gEdge.set('color', color);
     }
   }
-  let tmp = tempy.file({name: `${name}.png`});
-  await g.output('png', tmp);
-  // eslint-disable-next-line no-console
-  console.log('Dumped', tmp);
+  // $FlowFixMe
+  if (process.browser) {
+    // $FlowFixMe
+    globalThis.PARCEL_DUMP_GRAPHVIZ(name, g.to_dot());
+  } else {
+    // const tempy = require('tempy');
+    // let tmp = tempy.file({name: `${name}.png`});
+    // await g.output('png', tmp);
+    // eslint-disable-next-line no-console
+    // console.log('Dumped', tmp);
+  }
 }
 
 function nodeId(id) {

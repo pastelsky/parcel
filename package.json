@@ -41,6 +41,7 @@
     "@napi-rs/cli": "^2.6.2",
     "@parcel/babel-register": "2.8.0",
     "@types/node": "^15.12.4",
+    "buffer": "^5.5.0",
     "cross-env": "^7.0.0",
     "eslint": "^7.20.0",
     "flow-bin": "0.184.0",
@@ -69,5 +70,10 @@
   "collective": {
     "type": "opencollective",
     "url": "https://opencollective.com/parcel"
+  },
+  "browser": {
+    "react-dom": "preact/compat",
+    "react": "preact/compat",
+    "scheduler": false
   }
 }
