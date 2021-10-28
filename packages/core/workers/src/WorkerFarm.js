@@ -1,4 +1,5 @@
 // @flow
+/* global navigator:readonly */
 
 import type {ErrorWithCode, FilePath} from '@parcel/types';
 import type {
@@ -11,6 +12,9 @@ import type {
 } from './types';
 import type {HandleFunction} from './Handle';
 
+// eslint-disable-next-line monorepo/no-internal-import
+import * as worker from '@parcel/core/src/worker.js';
+import * as bus from './bus';
 import invariant from 'assert';
 import nullthrows from 'nullthrows';
 import EventEmitter from 'events';
@@ -46,9 +50,10 @@ export type FarmOptions = {|
   shouldPatchConsole?: boolean,
 |};
 
-type WorkerModule = {|
+type WorkerModule = {
   +[string]: (...args: Array<mixed>) => Promise<mixed>,
-|};
+  ...
+};
 
 export type WorkerApi = {|
   callMaster(CallRequest, ?boolean): Promise<mixed>,
@@ -72,6 +77,7 @@ export default class WorkerFarm extends EventEmitter {
   options: FarmOptions;
   run: HandleFunction;
   warmWorkers: number = 0;
+  readyWorkers: number = 0;
   workers: Map<number, Worker> = new Map();
   handles: Map<number, Handle> = new Map();
   sharedReferences: Map<SharedReference, mixed> = new Map();
@@ -95,10 +101,16 @@ export default class WorkerFarm extends EventEmitter {
       throw new Error('Please provide a worker path!');
     }
 
-    // $FlowFixMe this must be dynamic
-    this.localWorker = require(this.options.workerPath);
-    this.localWorkerInit =
-      this.localWorker.childInit != null ? this.localWorker.childInit() : null;
+    if (this.options.useLocalWorker) {
+      // $FlowFixMe
+      this.localWorker = worker;
+      // $FlowFixMe this must be dynamic
+      // this.localWorker = require(this.options.workerPath);
+      this.localWorkerInit =
+        this.localWorker.childInit != null
+          ? this.localWorker.childInit()
+          : null;
+    }
     this.run = this.createHandle('run');
 
     this.startMaxWorkers();
@@ -227,7 +239,13 @@ export default class WorkerFarm extends EventEmitter {
 
     worker.on('request', data => this.processRequest(data, worker));
 
-    worker.on('ready', () => this.processQueue());
+    worker.on('ready', () => {
+      this.readyWorkers++;
+      if (this.readyWorkers === this.options.maxConcurrentWorkers) {
+        this.emit('ready');
+      }
+      this.processQueue();
+    });
     worker.on('response', () => this.processQueue());
 
     worker.on('error', err => this.onError(err, worker));
@@ -308,8 +326,17 @@ export default class WorkerFarm extends EventEmitter {
     if (handleId != null) {
       mod = nullthrows(this.handles.get(handleId)?.fn);
     } else if (location) {
-      // $FlowFixMe this must be dynamic
-      mod = require(location);
+      // $FlowFixMe
+      if (process.browser) {
+        if (location === '@parcel/workers/src/bus.js') {
+          mod = bus;
+        } else {
+          throw new Error('No dynamic require possible: ' + location);
+        }
+      } else {
+        // $FlowFixMe this must be dynamic
+        mod = require(location);
+      }
     } else {
       throw new Error('Unknown request');
     }
@@ -331,6 +358,7 @@ export default class WorkerFarm extends EventEmitter {
     let result;
     if (method == null) {
       try {
+        // $FlowFixMe ???
         result = responseFromContent(await mod(...args));
       } catch (e) {
         result = errorResponseFromError(e);
@@ -602,9 +630,14 @@ export default class WorkerFarm extends EventEmitter {
   }
 
   static getNumWorkers(): number {
-    return process.env.PARCEL_WORKERS
-      ? parseInt(process.env.PARCEL_WORKERS, 10)
-      : Math.ceil(cpuCount() / 2);
+    // $FlowFixMe
+    if (process.browser) {
+      return navigator.hardwareConcurrency / 2;
+    } else {
+      return process.env.PARCEL_WORKERS
+        ? parseInt(process.env.PARCEL_WORKERS, 10)
+        : Math.ceil(cpuCount() / 2);
+    }
   }
 
   static isWorker(): boolean {

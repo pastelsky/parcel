@@ -446,6 +446,6 @@ export function createWorkerFarm(
 ): WorkerFarm {
   return new WorkerFarm({
     ...options,
-    workerPath: require.resolve('./worker'),
+    workerPath: '@parcel/core/src/worker.js', //require.resolve('./worker'),
   });
 }
