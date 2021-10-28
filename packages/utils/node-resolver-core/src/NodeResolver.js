@@ -35,10 +35,43 @@ import ThrowableDiagnostic, {
 import builtins, {empty} from './builtins';
 import nullthrows from 'nullthrows';
 import _Module from 'module';
-import {fileURLToPath} from 'url';
+// import {fileURLToPath} from 'url';
 import semver from 'semver';
 
-const EMPTY_SHIM = require.resolve('./_empty');
+// ---------------------------------------------------------------------
+
+function isURLInstance(fileURLOrPath) {
+  return fileURLOrPath != null && fileURLOrPath.href && fileURLOrPath.origin;
+}
+
+function getPathFromURLPosix(url) {
+  if (url.hostname !== '') {
+    throw new Error('ERR_INVALID_FILE_URL_HOST');
+  }
+  const pathname = url.pathname;
+  for (let n = 0; n < pathname.length; n++) {
+    if (pathname[n] === '%') {
+      const third = pathname.codePointAt(n + 2) | 0x20;
+      if (pathname[n + 1] === '2' && third === 102) {
+        throw new Error('ERR_INVALID_FILE_URL_PATH');
+      }
+    }
+  }
+  return decodeURIComponent(pathname);
+}
+
+function fileURLToPath(path: URL) {
+  if (typeof path === 'string') path = new URL(path);
+  else if (!isURLInstance(path)) throw new Error('ERR_INVALID_ARG_TYPE');
+  if (path.protocol !== 'file:') throw new Error('ERR_INVALID_URL_SCHEME');
+  return /* isWindows ? getPathFromURLWin32(path) : */ getPathFromURLPosix(
+    path,
+  );
+}
+
+// ---------------------------------------------------------------------
+
+const EMPTY_SHIM = '/_empty.js'; //require.resolve('./_empty');
 
 type InternalPackageJSON = PackageJSON & {pkgdir: string, pkgfile: string, ...};
 type Options = {|
