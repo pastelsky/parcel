@@ -10,6 +10,8 @@ import {promisify} from 'util';
 export type * from './types';
 export * from './NodeFS';
 export * from './MemoryFS';
+// $FlowFixMe
+export * from './ExtendedMemoryFs';
 export * from './OverlayFS';
 
 const pipeline: (Readable, Writable) => Promise<void> = promisify(
