@@ -31,6 +31,11 @@ import '@parcel/cache'; // register with serializer
 import '@parcel/package-manager';
 import '@parcel/fs';
 
+// TODO
+/* eslint-disable import/no-extraneous-dependencies, monorepo/no-internal-import */
+import '@parcel/repl/src/parcel/BrowserPackageManager.js';
+/* eslint-enable import/no-extraneous-dependencies, monorepo/no-internal-import */
+
 registerCoreWithSerializer();
 
 // Remove the workerApi type from the TransformationOpts and ValidationOpts types:
