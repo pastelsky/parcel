@@ -11,11 +11,15 @@ module.exports = {
   parser: '@babel/eslint-parser',
   plugins: ['@parcel', 'flowtype', 'import', 'monorepo', 'react', 'mocha'],
   parserOptions: {
+    requireConfigFile: false,
     ecmaVersion: 2018,
     ecmaFeatures: {
       jsx: true,
     },
     sourceType: 'module',
+    babelOptions: {
+      presets: ['@parcel/babel-preset'],
+    },
   },
   env: {
     node: true,
