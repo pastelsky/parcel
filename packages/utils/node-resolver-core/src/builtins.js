@@ -1,11 +1,62 @@
 // @flow strict-local
-// $FlowFixMe this is untyped
-import {builtinModules} from 'module';
-import nullthrows from 'nullthrows';
-// flowlint-next-line untyped-import:off
-import packageJson from '../package.json';
+const builtinModules = [
+  '_http_agent',
+  '_http_client',
+  '_http_common',
+  '_http_incoming',
+  '_http_outgoing',
+  '_http_server',
+  '_stream_duplex',
+  '_stream_passthrough',
+  '_stream_readable',
+  '_stream_transform',
+  '_stream_wrap',
+  '_stream_writable',
+  '_tls_common',
+  '_tls_wrap',
+  'assert',
+  'async_hooks',
+  'buffer',
+  'child_process',
+  'cluster',
+  'console',
+  'constants',
+  'crypto',
+  'dgram',
+  'dns',
+  'domain',
+  'events',
+  'fs',
+  'http',
+  'http2',
+  'https',
+  'inspector',
+  'module',
+  'net',
+  'os',
+  'path',
+  'perf_hooks',
+  'process',
+  'punycode',
+  'querystring',
+  'readline',
+  'repl',
+  'stream',
+  'string_decoder',
+  'sys',
+  'timers',
+  'tls',
+  'trace_events',
+  'tty',
+  'url',
+  'util',
+  'v8',
+  'vm',
+  'worker_threads',
+  'zlib',
+];
 
-export const empty: string = require.resolve('./_empty.js');
+export const empty: string = '/_empty.js';
 
 let builtins: {[string]: {|name: string, range: ?string|}, ...} =
   // $FlowFixMe
@@ -14,40 +65,6 @@ let builtins: {[string]: {|name: string, range: ?string|}, ...} =
 // use definite (current) list of Node builtins
 for (let key of builtinModules) {
   builtins[key] = {name: empty, range: null};
-}
-
-let polyfills = {
-  assert: 'assert',
-  buffer: 'buffer',
-  console: 'console-browserify',
-  constants: 'constants-browserify',
-  crypto: 'crypto-browserify',
-  domain: 'domain-browser',
-  events: 'events',
-  http: 'stream-http',
-  https: 'https-browserify',
-  os: 'os-browserify',
-  path: 'path-browserify',
-  process: 'process',
-  punycode: 'punycode',
-  querystring: 'querystring-es3',
-  stream: 'stream-browserify',
-  string_decoder: 'string_decoder',
-  sys: 'util',
-  timers: 'timers-browserify',
-  tty: 'tty-browserify',
-  url: 'url',
-  util: 'util',
-  vm: 'vm-browserify',
-  zlib: 'browserify-zlib',
-};
-
-for (let k in polyfills) {
-  let polyfill = polyfills[k];
-  builtins[k] = {
-    name: polyfill + (builtinModules.includes(polyfill) ? '/' : ''),
-    range: nullthrows(packageJson.devDependencies[polyfill]),
-  };
 }
 
 export default builtins;
