@@ -3,11 +3,13 @@ import type {Diagnostic} from '@parcel/diagnostic';
 import type {PluginOptions} from '@parcel/types';
 
 import formatCodeFrame from '@parcel/codeframe';
-import mdAnsi from '@parcel/markdown-ansi';
+// import mdAnsi from '@parcel/markdown-ansi';
 import chalk from 'chalk';
 import path from 'path';
 // $FlowFixMe
 import terminalLink from 'terminal-link';
+
+const mdAnsi = v => v;
 
 export type FormattedCodeFrame = {|
   location: string,
