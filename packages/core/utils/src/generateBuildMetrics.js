@@ -101,8 +101,8 @@ async function createBundleStats(
   fs: FileSystem,
   projectRoot: FilePath,
 ) {
-  let filePath = bundle.filePath;
-  let sourcemapSizes = await getSourcemapSizes(filePath, fs, projectRoot);
+  // let filePath = bundle.filePath;
+  // let sourcemapSizes = await getSourcemapSizes(filePath, fs, projectRoot);
 
   let assets: Map<string, AssetStats> = new Map();
   bundle.traverseAssets(asset => {
@@ -116,24 +116,24 @@ async function createBundleStats(
   });
 
   let assetsReport: Array<AssetStats> = [];
-  if (sourcemapSizes && sourcemapSizes.size) {
-    assetsReport = Array.from(sourcemapSizes.keys()).map((filePath: string) => {
-      let foundSize = sourcemapSizes.get(filePath) || 0;
-      let stats = assets.get(filePath) || {
-        filePath,
-        size: foundSize,
-        originalSize: foundSize,
-        time: 0,
-      };
+  // if (sourcemapSizes && sourcemapSizes.size) {
+  //   assetsReport = Array.from(sourcemapSizes.keys()).map((filePath: string) => {
+  //     let foundSize = sourcemapSizes.get(filePath) || 0;
+  //     let stats = assets.get(filePath) || {
+  //       filePath,
+  //       size: foundSize,
+  //       originalSize: foundSize,
+  //       time: 0,
+  //     };
 
-      return {
-        ...stats,
-        size: foundSize,
-      };
-    });
-  } else {
-    assetsReport = Array.from(assets.values());
-  }
+  //     return {
+  //       ...stats,
+  //       size: foundSize,
+  //     };
+  //   });
+  // } else {
+  assetsReport = Array.from(assets.values());
+  // }
 
   return {
     filePath: nullthrows(bundle.filePath),
