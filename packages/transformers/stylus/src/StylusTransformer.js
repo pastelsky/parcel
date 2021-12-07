@@ -1,7 +1,11 @@
 // @flow
 
 import {Transformer} from '@parcel/plugin';
-import {createDependencyLocation, isGlob, glob, globSync} from '@parcel/utils';
+import {
+  createDependencyLocation,
+  isGlob,
+  glob /* , globSync */,
+} from '@parcel/utils';
 import path from 'path';
 import nativeFS from 'fs';
 import stylus from 'stylus';
@@ -306,21 +310,21 @@ function patchNativeFS(fs, nativeGlob) {
     }
   };
 
-  // Patch the `glob` module as well so we use the Parcel FS and track invalidations.
-  let glob = nativeGlob.sync;
-  nativeGlob.sync = p => {
-    let res = globSync(p, fs);
-    if (!p.includes(`node_modules${path.sep}stylus`)) {
-      // Sometimes stylus passes file paths with no glob parts to the `glob` module.
-      // We want to avoid treating these as globs for performance.
-      if (isGlob(p)) {
-        invalidations.push({glob: p});
-      } else if (res.length === 0) {
-        invalidations.push({filePath: p});
-      }
-    }
-    return res;
-  };
+  // // Patch the `glob` module as well so we use the Parcel FS and track invalidations.
+  // let glob = nativeGlob.sync;
+  // nativeGlob.sync = p => {
+  //   let res = globSync(p, fs);
+  //   if (!p.includes(`node_modules${path.sep}stylus`)) {
+  //     // Sometimes stylus passes file paths with no glob parts to the `glob` module.
+  //     // We want to avoid treating these as globs for performance.
+  //     if (isGlob(p)) {
+  //       invalidations.push({glob: p});
+  //     } else if (res.length === 0) {
+  //       invalidations.push({filePath: p});
+  //     }
+  //   }
+  //   return res;
+  // };
 
   return () => {
     // $FlowFixMe

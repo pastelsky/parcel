@@ -27,6 +27,7 @@ export function globToRegex(glob: Glob, opts?: Options): RegExp {
   return makeRe(glob, opts);
 }
 
+/*
 export function globSync(
   p: FilePath,
   fs: FileSystem,
@@ -53,7 +54,7 @@ export function globSync(
   // $FlowFixMe
   return fastGlob.sync(normalizeSeparators(p), options);
 }
-
+*/
 export function glob(
   p: FilePath,
   fs: FileSystem,
