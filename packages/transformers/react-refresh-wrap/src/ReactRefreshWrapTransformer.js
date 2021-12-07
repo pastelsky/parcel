@@ -1,6 +1,6 @@
 // @flow
 
-import path from 'path';
+// import path from 'path';
 import {Transformer} from '@parcel/plugin';
 
 function shouldExclude(asset, options) {
@@ -32,9 +32,11 @@ export default (new Transformer({
       return [asset];
     }
 
-    let wrapperPath = `@parcel/transformer-react-refresh-wrap/${path.basename(
-      __dirname,
-    )}/helpers/helpers.js`;
+    // let wrapperPath = `@parcel/transformer-react-refresh-wrap/${path.basename(
+    //   __dirname,
+    // )}/helpers/helpers.js`;
+    let wrapperPath =
+      '@parcel/transformer-react-refresh-wrap/src/helpers/helpers.js';
 
     let code = await asset.getCode();
     let map = await asset.getMap();

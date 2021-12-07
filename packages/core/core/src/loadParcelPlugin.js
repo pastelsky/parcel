@@ -16,7 +16,9 @@ import {
   resolveConfig,
 } from '@parcel/utils';
 import {type ProjectPath, toProjectPath} from './projectPath';
-import {version as PARCEL_VERSION} from '../package.json';
+import {version as _PARCEL_VERSION} from '../package.json';
+// $FlowFixMe
+const PARCEL_VERSION = process.browser ? '2.0.0' : _PARCEL_VERSION;
 
 const NODE_MODULES = `${path.sep}node_modules${path.sep}`;
 const CONFIG = Symbol.for('parcel-plugin-config');
