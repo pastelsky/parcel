@@ -30,6 +30,10 @@ export class IDBCache implements Cache {
     return Promise.resolve();
   }
 
+  flush(): Promise<void> {
+    return Promise.resolve();
+  }
+
   serialize(): {||} {
     return {
       /*::...null*/
@@ -95,6 +99,21 @@ export class IDBCache implements Cache {
     let data =
       contents instanceof Uint8Array ? contents : Buffer.from(contents);
     await (await this.store).put(STORE_NAME, data, key);
+  }
+
+  async setBlobs(
+    entries: $ReadOnlyArray<[string, Buffer | string]>,
+  ): Promise<void> {
+    const tx = (await this.store).transaction(STORE_NAME, 'readwrite');
+    await Promise.all([
+      ...entries.map(([key, value]) =>
+        tx.store.put(
+          value instanceof Uint8Array ? value : Buffer.from(value),
+          key,
+        ),
+      ),
+      tx.done,
+    ]);
   }
 
   async getBuffer(key: string): Promise<?Buffer> {
