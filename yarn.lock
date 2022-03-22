@@ -8324,6 +8324,11 @@ lightningcss-linux-x64-musl@1.16.1:
   resolved "https://registry.yarnpkg.com/lightningcss-linux-x64-musl/-/lightningcss-linux-x64-musl-1.16.1.tgz#20b51081679dd6b7271ce11df825dc536a0c617c"
   integrity sha512-VZf76GxW+8mk238tpw0u9R66gBi/m0YB0TvD54oeGiOqvTZ/mabkBkbsuXTSWcKYj8DSrLW+A42qu+6PLRsIgA==
 
+lightningcss-wasm@^1.16.1:
+  version "1.16.1"
+  resolved "https://registry.yarnpkg.com/lightningcss-wasm/-/lightningcss-wasm-1.16.1.tgz#4c9cfb9bb865874d996c1daf848d91f60b84314c"
+  integrity sha512-EpqbdP/JUM3m6Jlt1MGwdHmiFTozSjpf7KNWOlnAhxZ76N1FjOBYvRM8ShnVU1woetJ34F3LFcBDwFxtAkKx9g==
+
 lightningcss-win32-x64-msvc@1.16.1:
   version "1.16.1"
   resolved "https://registry.yarnpkg.com/lightningcss-win32-x64-msvc/-/lightningcss-win32-x64-msvc-1.16.1.tgz#7546b4dca78314b1d2701ed220cb6e50b8c6b5ca"
