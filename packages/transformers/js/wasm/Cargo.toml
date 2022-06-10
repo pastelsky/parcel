@@ -13,3 +13,6 @@ parcel-js-swc-core = { path = "../core" }
 serde = "1"
 serde-wasm-bindgen = "0.3.0"
 wasm-bindgen = "0.2"
+
+[package.metadata.wasm-pack.profile.profiling]
+wasm-opt = ['-g', '-O']
