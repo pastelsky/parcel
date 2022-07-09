@@ -1,0 +1,63 @@
+<div id="log" style="width: 10em; text-align: right"></div>
+
+<script type="module">
+	import init, {transform} from './wasm/dist-web/parcel_js_swc_wasm.js';
+
+	const textEncoder = new TextEncoder();
+
+	let f = code =>
+		transform({
+			filename: '/index.js',
+			code: textEncoder.encode(code),
+			module_id: 'id',
+			project_root: '/',
+			replace_env: false,
+			inline_fs: false,
+			insert_node_globals: false,
+			node_replacer: false,
+			is_browser: true,
+			is_worker: false,
+			env: {},
+			is_type_script: false,
+			is_jsx: false,
+			jsx_pragma: undefined,
+			jsx_pragma_frag: undefined,
+			automatic_jsx_runtime: false,
+			jsx_import_source: undefined,
+			is_development: false,
+			react_refresh: false,
+			decorators: false,
+			use_define_for_class_fields: false,
+			targets: {},
+			source_maps: false,
+			scope_hoist: true,
+			source_type: 'Module',
+			supports_module_workers: true,
+			is_library: false,
+			is_esm_output: false,
+			trace_bailouts: false,
+			is_swc_helpers: false,
+		});
+
+	await init();
+
+	let input = await fetch(
+		'https://unpkg.com/react-dom@18.1.0/cjs/react-dom.development.js',
+	).then(r => r.text());
+
+	let i = 20;
+
+	let step = () => {
+		if (i-- < 0) return;
+
+		const start = performance.now();
+		const x = f(input);
+		const end = performance.now();
+		// console.log(new TextDecoder().decode(x.code));
+		log.innerHTML += `${(end - start).toFixed(2)}ms` + '<br>';
+		console.log(log.innerHTML);
+		setTimeout(step, 0);
+	};
+
+	step();
+</script>
