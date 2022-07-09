@@ -4,7 +4,7 @@ import type {Readable} from 'stream';
 import type {FileSystem} from '@parcel/fs';
 
 import {objectSortedEntriesDeep} from './collection';
-import {hashString, Hash} from '@parcel/hash';
+import {hashBuffer, hashString, Hash} from '@parcel/hash';
 
 export function hashStream(stream: Readable): Promise<string> {
   let hash = new Hash();
@@ -29,6 +29,9 @@ export function hashObject(obj: {+[string]: mixed, ...}): string {
   return hashString(JSON.stringify(objectSortedEntriesDeep(obj)));
 }
 
-export function hashFile(fs: FileSystem, filePath: string): Promise<string> {
-  return hashStream(fs.createReadStream(filePath));
+export async function hashFile(
+  fs: FileSystem,
+  filePath: string,
+): Promise<string> {
+  return hashBuffer(await fs.readFile(filePath));
 }
