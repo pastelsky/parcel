@@ -1,6 +1,6 @@
-import {transform, transformStyleAttribute} from '@parcel/css-wasm';
+import {transform, transformStyleAttribute} from 'lightningcss-wasm';
 
-export {default, browserslistToTargets} from '@parcel/css-wasm';
+export {default, browserslistToTargets} from 'lightningcss-wasm';
 
 // Hydrate Uint8Array into Buffer
 
